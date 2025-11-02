@@ -1,8 +1,7 @@
 // deno-lint-ignore-file
 // deno-lint-ignore-file no-explicit-any
 import { assertEquals, assert, assertRejects } from "https://deno.land/std@0.208.0/assert/mod.ts";
-import server, { _resetForTests, _getRoutesForTests, _getMiddlewaresForTests } from "./server.ts";
-import { renderMiddleware } from "../middlewares/render.ts"; // Import render middleware
+import server, { _resetForTests, _getRoutesForTests } from "./server.ts";
 
 function resetCore() {
     _resetForTests();
@@ -170,15 +169,15 @@ Deno.test("context and rendering", async (t) => {
         assertEquals(context.query, {});
     });
 
-    await t.step("query parameters parsing", () => {
-        resetCore();
-        const searchParams = new URLSearchParams("name=John&age=30");
-        const query: Record<string, string> = {};
-        for (const [key, value] of searchParams) {
-            query[key] = value;
+    await t.step("param population from match", () => {
+        const match = { pathname: { groups: { id: "123", name: "test" } } } as any;
+        const params: Record<string, string> = {};
+        const paramNames = ["id", "name"];
+        for (const name of paramNames) {
+            params[name] = match.pathname.groups?.[name] ?? "";
         }
-        assertEquals(query.name, "John");
-        assertEquals(query.age, "30");
+        assertEquals(params.id, "123");
+        assertEquals(params.name, "test");
     });
 });
 
@@ -275,7 +274,6 @@ Deno.test("route cache", async (t) => {
         assert(matchCache.has("/not-found"));
     });
 });
-
 Deno.test("URL pattern matching", async (t) => {
     await t.step("pattern matching with parameters", () => {
         resetCore();
@@ -298,6 +296,23 @@ Deno.test("URL pattern matching", async (t) => {
         const match = pattern.exec("http://localhost/api/users");
         assert(match);
         assertEquals(route.paramNames.length, 0);
+    });
+
+    await t.step("pattern matching with empty parameter value", () => {
+        resetCore();
+        server.get("/users/:id", () => new Response("ok"));
+        const routes = _getRoutesForTests();
+        const route = routes[0];
+
+        // Manually test the parameter extraction logic with undefined groups
+        const params: Record<string, string> = {};
+        const mockMatch = { pathname: { groups: undefined } } as any;
+
+        for (const name of route.paramNames) {
+            params[name] = mockMatch.pathname.groups?.[name] ?? "";
+        }
+
+        assertEquals(params.id, "");
     });
 });
 
@@ -372,5 +387,225 @@ Deno.test("performance optimizations", async (t) => {
         assertEquals(route.middlewares.length, 2);
         assertEquals(route.middlewares[0], routeMw);
         assertEquals(route.middlewares[1], globalMw);
+    });
+});
+
+Deno.test("serve function integration", async (t) => {
+    await t.step("serve with GET route", async () => {
+        resetCore();
+        server.get("/hello", () => new Response("world"));
+        const s = await server.serve({ port: 0 });
+        const addr = s.addr as Deno.NetAddr;
+        const port = addr.port;
+        const res = await fetch(`http://localhost:${port}/hello`);
+        assertEquals(res.status, 200);
+        assertEquals(await res.text(), "world");
+        s.close();
+    });
+
+    await t.step("serve with POST route", async () => {
+        resetCore();
+        server.post("/submit", () => new Response("submitted"));
+        const s = await server.serve({ port: 0 });
+        const addr = s.addr as Deno.NetAddr;
+        const port = addr.port;
+        const res = await fetch(`http://localhost:${port}/submit`, { method: "POST" });
+        assertEquals(res.status, 200);
+        assertEquals(await res.text(), "submitted");
+        s.close();
+    });
+
+    await t.step("serve with route parameters", async () => {
+        resetCore();
+        server.get("/user/:id", (req, ctx) => new Response(`User ${ctx.params.id}`));
+        const s = await server.serve({ port: 0 });
+        const addr = s.addr as Deno.NetAddr;
+        const port = addr.port;
+        const res = await fetch(`http://localhost:${port}/user/123`);
+        assertEquals(res.status, 200);
+        assertEquals(await res.text(), "User 123");
+        s.close();
+    });
+
+    await t.step("serve with query parameters", async () => {
+        resetCore();
+        server.get("/search", (req, ctx) => new Response(`Query: ${ctx.query.q}`));
+        const s = await server.serve({ port: 0 });
+        const addr = s.addr as Deno.NetAddr;
+        const port = addr.port;
+        const res = await fetch(`http://localhost:${port}/search?q=test`);
+        assertEquals(res.status, 200);
+        assertEquals(await res.text(), "Query: test");
+        s.close();
+    });
+
+    await t.step("serve with 404", async () => {
+        resetCore();
+        server.get("/exists", () => new Response("ok"));
+        const s = await server.serve({ port: 0 });
+        const addr = s.addr as Deno.NetAddr;
+        const port = addr.port;
+        const res = await fetch(`http://localhost:${port}/notfound`);
+        assertEquals(res.status, 404);
+        assertEquals(await res.text(), "Not found");
+        s.close();
+    });
+
+    await t.step("serve with middleware", async () => {
+        resetCore();
+        server.use((req, ctx, next) => {
+            ctx.test = "middleware";
+            return next();
+        });
+        server.get("/mw", (req, ctx) => new Response(ctx.test as string));
+        const s = await server.serve({ port: 0 });
+        const addr = s.addr as Deno.NetAddr;
+        const port = addr.port;
+        const res = await fetch(`http://localhost:${port}/mw`);
+        assertEquals(res.status, 200);
+        assertEquals(await res.text(), "middleware");
+        s.close();
+    });
+
+    await t.step("serve fast path root route", async () => {
+        resetCore();
+        server.get("/", () => new Response("root"));
+        const s = await server.serve({ port: 0 });
+        const addr = s.addr as Deno.NetAddr;
+        const port = addr.port;
+        const res = await fetch(`http://localhost:${port}/`);
+        assertEquals(res.status, 200);
+        assertEquals(await res.text(), "root");
+        s.close();
+    });
+
+    await t.step("serve root with query", async () => {
+        resetCore();
+        server.get("/", () => new Response("root"));
+        const s = await server.serve({ port: 0 });
+        const addr = s.addr as Deno.NetAddr;
+        const port = addr.port;
+        const res = await fetch(`http://localhost:${port}/?q=test`);
+        assertEquals(res.status, 200);
+        assertEquals(await res.text(), "root");
+        s.close();
+    });
+
+    await t.step("serve with custom cache size", async () => {
+        resetCore();
+        server.get("/cache", () => new Response("cached"));
+        const s = await server.serve({ port: 0, cacheSize: 5 });
+        const addr = s.addr as Deno.NetAddr;
+        const port = addr.port;
+        const res = await fetch(`http://localhost:${port}/cache`);
+        assertEquals(res.status, 200);
+        assertEquals(await res.text(), "cached");
+        s.close();
+    });
+
+    await t.step("hello world", async () => {
+        resetCore();
+        server.get("/hello", () => new Response("world"));
+        const s = await server.serve({ port: 0 });
+        const addr = s.addr as Deno.NetAddr;
+        const port = addr.port;
+        const res = await fetch(`http://localhost:${port}/hello`);
+        assertEquals(res.status, 200);
+        assertEquals(await res.text(), "world");
+        s.close();
+    });
+
+    await t.step("cache-hit", async () => {
+        resetCore();
+        let counter = 0;
+        server.get("/cache-hit", () => {
+            counter++;
+            return new Response(`counter: ${counter}`);
+        });
+        const s = await server.serve({ port: 0 });
+        const addr = s.addr as Deno.NetAddr;
+        const port = addr.port;
+        const res1 = await fetch(`http://localhost:${port}/cache-hit`);
+        assertEquals(res1.status, 200);
+        assertEquals(await res1.text(), "counter: 1");
+        const res2 = await fetch(`http://localhost:${port}/cache-hit`);
+        assertEquals(res2.status, 200);
+        assertEquals(await res2.text(), "counter: 2");
+        s.close();
+    });
+
+    await t.step("cached-404", async () => {
+        resetCore();
+        server.get("/exists", () => new Response("ok"));
+        const s = await server.serve({ port: 0 });
+        const addr = s.addr as Deno.NetAddr;
+        const port = addr.port;
+        const res1 = await fetch(`http://localhost:${port}/missing`);
+        assertEquals(res1.status, 404);
+        assertEquals(await res1.text(), "Not found");
+        const res2 = await fetch(`http://localhost:${port}/missing`);
+        assertEquals(res2.status, 404);
+        assertEquals(await res2.text(), "Not found");
+        s.close();
+    });
+
+    await t.step("eviction", async () => {
+        resetCore();
+        let counterA = 0;
+        let counterB = 0;
+        server.get("/a", () => {
+            counterA++;
+            return new Response(`A: ${counterA}`);
+        });
+        server.get("/b", () => {
+            counterB++;
+            return new Response(`B: ${counterB}`);
+        });
+        const s = await server.serve({ port: 0, cacheSize: 1 });
+        const addr = s.addr as Deno.NetAddr;
+        const port = addr.port;
+        // Hit /a, cache it
+        const res1 = await fetch(`http://localhost:${port}/a`);
+        assertEquals(await res1.text(), "A: 1");
+        // Hit /b, evicts /a
+        const res2 = await fetch(`http://localhost:${port}/b`);
+        assertEquals(await res2.text(), "B: 1");
+        // Hit /a again, should recompute since evicted
+        const res3 = await fetch(`http://localhost:${port}/a`);
+        assertEquals(await res3.text(), "A: 2");
+        // Hit a 404, cache full so doesn't cache 404
+        const res4 = await fetch(`http://localhost:${port}/missing`);
+        assertEquals(res4.status, 404);
+        assertEquals(await res4.text(), "Not found");
+        s.close();
+    });
+
+    await t.step("serve with multiple route parameters", async () => {
+        resetCore();
+        server.get("/api/:version/users/:userId/posts/:postId", (req, ctx) => new Response(`${ctx.params.version}-${ctx.params.userId}-${ctx.params.postId}`));
+        const s = await server.serve({ port: 0 });
+        const addr = s.addr as Deno.NetAddr;
+        const port = addr.port;
+        const res = await fetch(`http://localhost:${port}/api/v1/users/123/posts/456`);
+        assertEquals(res.status, 200);
+        assertEquals(await res.text(), "v1-123-456");
+        s.close();
+    });
+
+    await t.step("serve with param fallback to empty string", async () => {
+        resetCore();
+        server.get("/stub/:id", (req, ctx) => new Response(ctx.params.id === "" ? "(empty)" : ctx.params.id));
+        const routes = _getRoutesForTests();
+        routes[0].pattern = {
+            exec: (_url: string) => ({ pathname: { groups: undefined } })
+        } as any;
+
+        const s = await server.serve({ port: 0 });
+        const addr = s.addr as Deno.NetAddr;
+        const port = addr.port;
+        const res = await fetch(`http://localhost:${port}/stub/123`);
+        assertEquals(res.status, 200);
+        assertEquals(await res.text(), "(empty)");
+        s.close();
     });
 });

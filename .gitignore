@@ -40,7 +40,6 @@ node_modules/
 
 # Build outputs
 dist/
-build/
 *.js.map
 
 # Testing
@@ -56,3 +55,5 @@ temp/
 *.bak
 *.cache
 .cache/
+
+modules/order/data.json

@@ -7,7 +7,10 @@ WORKDIR /app
 COPY . .
 
 # Cache the application (this will create a new lock file)
-RUN deno cache main.ts
+RUN deno cache app.ts
+
+# Ensure /deno-dir is writable by the deno user
+RUN chown -R deno:deno /deno-dir
 
 # Expose port
 EXPOSE 8000
@@ -16,4 +19,4 @@ EXPOSE 8000
 USER deno
 
 # Run the application
-CMD ["deno", "run", "--allow-net", "--allow-read", "--allow-env", "--watch", "main.ts"]
+CMD ["deno", "run", "-A", "--unstable-kv", "main.ts"]

@@ -9,7 +9,7 @@ services:
       - .:/app
       - /app/node_modules
     restart: unless-stopped
-    command: deno run --allow-net --allow-read --allow-env --watch main.ts
+    command: deno run -A --unstable-kv app.ts
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/"]
       interval: 30s
