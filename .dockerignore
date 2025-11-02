@@ -1,0 +1,12 @@
+.git
+.gitignore
+*.md
+node_modules
+.env
+.vscode
+*.log
+.DS_Store
+Dockerfile
+.dockerignore
+deno.lock
+cov_profile
