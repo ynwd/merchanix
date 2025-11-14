@@ -57,3 +57,5 @@ temp/
 .cache/
 
 modules/order/data.json
+modules/test*
+modules/module*

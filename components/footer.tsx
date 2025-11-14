@@ -1,4 +1,3 @@
-// create footer react component, that return
 export default function Footer() {
     return (
         <footer>

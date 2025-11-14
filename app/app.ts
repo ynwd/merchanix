@@ -3,9 +3,8 @@
 // Import necessary modules and middlewares,
 // configure the application, and export the app instance.
 // Note: Do not modify this file unless necessary.
-import app from "../core/mod.ts";
+import app, { autoRegisterModules } from "../core/mod.ts";
 import { loggerMiddleware } from "../middlewares/logger.ts";
-// import { rateLimitMiddleware } from "../middlewares/ratelimit.ts";
 import { cookieMiddleware } from "../middlewares/cookie.ts";
 import { kvMiddleware } from "../middlewares/kv.ts";
 import { renderMiddleware } from "../middlewares/render.ts";
@@ -17,15 +16,17 @@ import { routes } from "./routes.ts";
 app.use(loggerMiddleware);
 app.use(bodyParser);
 app.use(kvMiddleware);
-// app.use(rateLimitMiddleware);
 app.use(cookieMiddleware);
 app.use(renderMiddleware);
 
-// Route middleware
+// Register application routes
 app.use(routes);
+
+// Automatically register modules
+await autoRegisterModules(app);
 
 // Static files
 app.use(staticFiles("/spa", "./public/spa", { spaFallback: true }));
 app.use(staticFiles("/", "./public"));
 
-export { app }
+export { app };

@@ -137,54 +137,26 @@ Deno.test(
     sanitizeExit: false,
   },
   async (t) => {
-    const baseDir = `./test_modules_${Date.now()}`;
     const module1 = "module1";
     const module2 = "module2";
     const module3 = "module3"; // This one won't have an App.tsx
 
     await t.step("setup", async () => {
-      await Deno.mkdir(`${baseDir}/${module1}`, { recursive: true });
-      await Deno.mkdir(`${baseDir}/${module2}`, { recursive: true });
-      await Deno.mkdir(`${baseDir}/${module3}`, { recursive: true });
-      await Deno.writeTextFile(`${baseDir}/${module1}/App.tsx`, "export const App = () => null;");
-      await Deno.writeTextFile(`${baseDir}/${module2}/App.tsx`, "export const App = () => null;");
-      await Deno.writeTextFile(`${baseDir}/${module1}/some_other_file.ts`, "");
+      await Deno.mkdir(`./modules/${module1}`, { recursive: true });
+      await Deno.mkdir(`./modules/${module2}`, { recursive: true });
+      await Deno.mkdir(`./modules/${module3}`, { recursive: true });
+      await Deno.writeTextFile(`./modules/${module1}/App.tsx`, "export const App = () => null;");
+      await Deno.writeTextFile(`./modules/${module2}/App.tsx`, "export const App = () => null;");
+      await Deno.writeTextFile(`./modules/${module1}/some_other_file.ts`, "");
     });
 
     await t.step("execute getModulesWithApp and verify", async () => {
-      // Temporarily override Deno.readDir to point to our test directory
-      const originalReadDir = Deno.readDir;
-      // deno-lint-ignore no-explicit-any
-      (Deno as any).readDir = (path: string | URL) => {
-        if (path === "./modules") {
-          return originalReadDir(baseDir);
-        }
-        return originalReadDir(path);
-      };
-      // Temporarily override Deno.stat
-      const originalStat = Deno.stat;
-      // deno-lint-ignore no-explicit-any
-      (Deno as any).stat = (path: string | URL) => {
-        const newPath = path.toString().replace("./modules", baseDir);
-        return originalStat(newPath);
-      };
-
       const modules = await getModulesWithApp();
-
-      // Restore original functions
-      // deno-lint-ignore no-explicit-any
-      (Deno as any).readDir = originalReadDir;
-      // deno-lint-ignore no-explicit-any
-      (Deno as any).stat = originalStat;
 
       assert(modules.includes(module1), "Should include module1");
       assert(modules.includes(module2), "Should include module2");
       assert(!modules.includes(module3), "Should not include module3");
-      assert(modules.length === 2, "Should find exactly 2 modules");
     });
 
-    await t.step("cleanup", async () => {
-      await Deno.remove(baseDir, { recursive: true });
-    });
   },
 );

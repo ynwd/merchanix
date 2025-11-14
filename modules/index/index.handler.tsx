@@ -1,5 +1,5 @@
 import { Handler } from "../../core/mod.ts";
-import { App } from "../../modules/index/App.tsx";
+import { App } from "./App.tsx";
 
 export const rootHandler: Handler = (_req, ctx) => {
     const props = { name: "Fastro Merchant", serverTime: new Date().toISOString() };

@@ -2,17 +2,39 @@
 
 :root {
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  --ease-out-quint: cubic-bezier(0.23, 1, 0.32, 1); /* Snappier easing */
+  --ease-out-quint: cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(10px) scale(0.98); /* Reduced movement */
+    transform: translateY(10px) scale(0.98);
   }
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(32px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-32px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -24,17 +46,17 @@
 
 html {
   font-family: var(--font-sans);
-  color: #e0e0e0; /* Slightly softer white */
-  background-color: #0a0a0a; /* Deeper black */
+  color: #e0e0e0;
+  background-color: #0a0a0a;
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  min-height: 100dvh; /* gunakan dvh untuk mobile dynamic bars */
+  min-height: 100dvh;
   padding: 2rem;
-  display: flex;              /* ubah dari grid ke flex */
+  display: flex;
   flex-direction: column;
   background-image:
     radial-gradient(ellipse 80% 50% at 50% -20%, rgba(217, 217, 217, 0.08), transparent),
@@ -48,23 +70,23 @@ main {
   max-width: 720px;
   text-align: center;
   padding: 3rem 2.5rem;
-  background: rgba(12, 12, 12, 0.6); /* Darker, less transparent background */
-  border: 1px solid rgba(255, 255, 255, 0.1); /* Slightly more visible border */
+  background: rgba(12, 12, 12, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 24px;
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   box-shadow:
     0 0 0 1px rgba(255, 255, 255, 0.05),
-    0px 20px 60px -15px rgba(0, 0, 0, 0.7); /* Softer, deeper shadow */
-  animation: fadeIn 0.5s var(--ease-out-quint) forwards; /* Faster duration and new easing */
-  will-change: transform, opacity; /* Optimasi performa animasi */
+    0px 20px 60px -15px rgba(0, 0, 0, 0.7);
+  animation: fadeIn 0.5s var(--ease-out-quint) forwards;
+  will-change: transform, opacity;
   position: relative;
-  margin: auto; /* Vertically and horizontally center main */
-  display: flex;              /* pusatkan isi jika tinggi besar */
+  margin: auto;
+  display: flex;
   flex-direction: column;
-  justify-content: flex-start; /* Align content to the top */
-  flex-shrink: 0; /* Prevent shrinking on smaller viewports */
-  gap: 1.75rem; /* Add consistent spacing between elements */
+  justify-content: flex-start;
+  flex-shrink: 0;
+  gap: 1.25rem;
 }
 
 main::before {
@@ -72,30 +94,26 @@ main::before {
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  /* Subtle inner glow effect */
   background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.08), transparent 50%);
   pointer-events: none;
   mix-blend-mode: screen;
 }
 
-/* New styles for the spans inside main */
 main > span:first-of-type {
   font-size: 1rem;
   font-weight: 600;
   color: #a0a0a0;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  margin-bottom: -0.75rem; /* Pull the h1 closer */
+  margin-bottom: -0.5rem;
 }
 
-/* Style for the main tagline spans */
-/* adjust the size of fonts on mobile view */
 main > span:nth-of-type(2),
 main > span:nth-of-type(3),
 main > span:nth-of-type(4) {
   font-size: 1.25rem;
   line-height: 1.7;
-  color: #c0c0c0; /* Softer, more elegant silver-white */
+  color: #c0c0c0;
   max-width: 580px;
   margin: 0 auto;
 }
@@ -103,15 +121,13 @@ main > span:nth-of-type(4) {
 h1 {
   font-size: clamp(2.8rem, 7vw, 4.2rem);
   font-weight: 800;
-  letter-spacing: -0.04em; /* Slightly less tight */
+  letter-spacing: -0.04em;
   line-height: 1.1;
-  margin-bottom: 0; /* Replaced by gap on main */
-  /* More subtle, elegant gradient */
+  margin-bottom: 0.25rem;
   background: linear-gradient(90deg, #ffffff 70%, #c0c0c0);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  /* text-fill-color: transparent; */
 }
 
 p {
@@ -129,7 +145,8 @@ p {
   justify-content: center;
   align-items: center;
   max-width: 500px;
-  margin: 0 auto;
+  margin: 1rem auto 0;
+  animation: fadeInDown 0.5s var(--ease-out-quint) forwards;
 }
 
 .cta-form input[type="email"] {
@@ -170,7 +187,7 @@ button,
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-  user-select: none; /* Mencegah seleksi teks saat disentuh */
+  user-select: none;
 }
 button:hover,
 .cta-form button:hover,
@@ -198,29 +215,35 @@ button:active,
   margin-top: 0;
 }
 
-/* vertical space for footer is too large */
-
 footer {
   width: 100%;
   text-align: center;
   font-size: 0.8rem; 
   color: #666;
-  padding: 1rem 0 1rem; /* reduced top padding */
+  padding: 1rem 0 1rem;
   margin-top: 0;
 }
 
 footer p {
   font-size: inherit;
   color: inherit;
-  /* margin-bottom: 0.5rem; */
 }
 
 .cta-form .form-note {
-  font-size: 0.875rem; /* Smaller font size */
-  line-height: 1.5; /* Adjusted line height */
-  color: #888; /* Softer color */
-  width: 100%; /* Ensure it takes full width in the flex context */
-  margin-top: 0.25rem; /* Add a little space above */
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #888;
+  width: 100%;
+  margin-top: 0.25rem;
+}
+
+.cursor {
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
 }
 
 @media (min-width: 641px) {
@@ -260,21 +283,21 @@ footer p {
     padding: 0 0.5rem;
   }
   .cta-form input[type="email"] {
-    flex: none; /* Reset flex behavior */
+    flex: none;
     width: 100%;
     min-width: 0;
     font-size: 1rem;
     padding: 0.9rem 1rem;
-    text-align: center; /* Center placeholder text */
+    text-align: left;
   }
   .cta-form button {
-    flex: none; /* Reset flex behavior */
+    flex: none;
     width: 100%;
     font-size: 1rem;
     padding: 1rem 0;
   }
   .cta-form .form-note {
-    font-size: 0.8rem; /* Adjust for mobile */
+    font-size: 0.8rem;
     margin-top: 0.5rem;
   }
   footer {

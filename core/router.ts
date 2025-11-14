@@ -12,7 +12,6 @@ export interface Route {
  * @param routes An array of Route objects defining the routes to handle, including method, path, handler, and optional middlewares.
  * @returns A Middleware function that processes requests by matching routes, extracting parameters, and applying handlers and middlewares.
  */
-// what is alternative name of this function?
 export function build(routes: Route[]): Middleware {
     return (req: Request, ctx: Context, next: () => Response | Promise<Response>) => {
         const url = new URL(req.url);

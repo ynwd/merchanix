@@ -14,12 +14,8 @@ import {
     loginHandler,
     protectedHandler,
 } from "./handlers/handlers.ts";
-import { notifyHandler } from "./handlers/notify.handler.ts";
 import { renderWithParamsHandler } from "./handlers/params.handler.tsx";
 import { renderHandler } from "./handlers/render.handler.tsx";
-import { rootHandler } from "./handlers/index.handler.tsx";
-import { successHandler } from "./handlers/success.handler.tsx";
-import { ssrHandler } from "./handlers/ssr.handler.tsx";
 
 export const routeLogMiddleware: Middleware = (req, ctx, next) => {
     console.log(`Route middleware 1: ${req.method} ${req.url}` + ` with params ${JSON.stringify(ctx.params)}`);
@@ -38,23 +34,19 @@ export const authorizationMiddleware: Middleware = (req, _, next) => {
     return next();
 };
 
-const r = createRouter();
+const router = createRouter();
 
-r.get("/api", () => new Response("API Root"));
-r.get("/hello/:id", routeHandler, routeLogMiddleware, anotherRouteMiddleware);
-r.get("/hello", authHandler, authorizationMiddleware);
-r.get("/render", renderHandler);
-r.get("/render/:name", renderWithParamsHandler);
-r.get("/session", sessionHandler);
-r.get("/session/set", setSessionHandler);
-r.get("/session/clear", clearSessionHandler);
-r.get("/login", loginHandler);
-r.get("/protected", protectedHandler, jwtMiddleware);
-r.post("/notify", notifyHandler);
-r.get("/success", successHandler);
-r.get("/ssr", ssrHandler);
-r.get("/", rootHandler)
+router.get("/api", () => new Response("API Root"))
+    .get("/hello/:id", routeHandler, routeLogMiddleware, anotherRouteMiddleware)
+    .get("/hello", authHandler, authorizationMiddleware)
+    .get("/render", renderHandler)
+    .get("/render/:name", renderWithParamsHandler)
+    .get("/session", sessionHandler)
+    .get("/session/set", setSessionHandler)
+    .get("/session/clear", clearSessionHandler)
+    .get("/login", loginHandler)
+    .get("/protected", protectedHandler, jwtMiddleware)
 
-const routes = r.build();
+const routes = router.build();
 
-export { routes };
+export { routes, router };

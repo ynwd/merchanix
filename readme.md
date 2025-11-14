@@ -1,6 +1,6 @@
 # Custom HTTP Server for Merchanix
 
-A lightweight, high-performance HTTP server built on top of Deno with React SSR support, middleware capabilities, static file serving, intelligent route caching, rate limiting, cookie handling, JWT authentication, CORS support, CSRF protection, security headers, input sanitization, and compression.
+A lightweight, high-performance HTTP server built on top of Deno with React SSR support, middleware capabilities, static file serving, intelligent route caching, rate limiting, cookie handling, JWT authentication, CORS support, CSRF protection, security headers, input sanitization, compression, request body parsing, file upload handling, session management, auto module registration, build system for SPAs, and watch mode for development.
 
 ## Features
 
@@ -21,7 +21,15 @@ A lightweight, high-performance HTTP server built on top of Deno with React SSR 
 - 🎨 **Type Safe**: Full TypeScript support with strict typing
 - 🛣️ **Dynamic Routes**: URL parameter extraction (e.g., `/users/:id`)
 - 🔍 **Query Parameters**: Built-in query string parsing
-- 🗂️ **Static File Serving**: Serve static files from a directory with automatic content-type detection (via middleware)
+- 🗂️ **Static File Serving**: Serve static files from a directory with automatic content-type detection and cache headers (via middleware)
+- 📝 **Request Body Parsing**: Built-in JSON/form/multipart/text parsing helper
+- 📤 **File Upload**: Multipart form data handling with validation
+- 🍪 **Session Management**: Cookie-based session handling
+- 🔧 **Auto Module Registration**: Automatic loading and registration of middleware modules from the modules directory
+- 🛠️ **Fluent Router Builder**: Chainable API for defining routes with middlewares
+- 🏗️ **SPA Build System**: esbuild-based bundling for React SPAs with hydration support
+- 👀 **Watch Mode**: Automatic rebuilding of modules during development
+- 📦 **Cache-Control Headers**: Built-in cache header management for static files
 
 ### ❌ TODO: E-commerce Features
 
@@ -35,11 +43,11 @@ A lightweight, high-performance HTTP server built on top of Deno with React SSR 
 
 #### Request Handling
 - [x] **Cookie Parser**: Cookie read/write utilities
-- [ ] **Request Body Parsing**: Built-in JSON/form/multipart parsing helper
-- [ ] **File Upload**: Multipart form data handling with validation
+- [x] **Request Body Parsing**: Built-in JSON/form/multipart/text parsing helper
+- [x] **File Upload**: Multipart form data handling with validation
 - [x] **Compression**: Gzip/Brotli response compression
 - [ ] **ETag Support**: Automatic ETag generation
-- [ ] **Cache-Control**: Built-in cache header management
+- [x] **Cache-Control**: Built-in cache header management for static files
 
 #### API Features
 - [ ] **Pagination Helper**: Built-in pagination utilities
