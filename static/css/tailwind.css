@@ -1,0 +1,33 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;600;700&display=swap');
+@import "tailwindcss";
+
+.blinking-cursor {
+     animation: blink 1s step-end infinite;
+ }
+ @keyframes blink {
+    from, to { opacity: 0; }
+    50% { opacity: 1; }
+ }
+
+ @keyframes slideInFromLeft {
+   from {
+         opacity: 0;
+         transform: translateX(-20px);
+   }
+   to {
+         opacity: 1;
+         transform: translateX(0);
+   }
+}
+.slide-in-from-left {
+   animation: slideInFromLeft 0.3s ease-out;
+}
+
+
+body {
+   background-color: #f3f4f6; /* Tailwind bg-gray-100 */
+}
+
+@theme {
+  --font-roboto: "Roboto Slab", serif;
+}
