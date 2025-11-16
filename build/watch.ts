@@ -14,8 +14,7 @@ async function rebuild() {
 // Initial build
 await rebuild();
 
-// Watch for changes in modules/
-const watcher = Deno.watchFs("./modules");
+const watcher = Deno.watchFs(["./modules", "./components"]);
 let rebuildTimeout: number | undefined;
 let isRebuilding = false;
 

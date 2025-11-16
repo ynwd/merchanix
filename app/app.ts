@@ -10,6 +10,7 @@ import { kvMiddleware } from "../middlewares/kv.ts";
 import { renderMiddleware } from "../middlewares/render.ts";
 import { staticFiles } from "../middlewares/static.ts";
 import { bodyParser } from "../middlewares/bodyparser.ts";
+import { tailwind } from "../middlewares/tailwind.ts";
 import { routes } from "./routes.ts";
 
 // Register global middlewares
@@ -18,6 +19,7 @@ app.use(bodyParser);
 app.use(kvMiddleware);
 app.use(cookieMiddleware);
 app.use(renderMiddleware);
+app.use(tailwind("/css/app.css"));
 
 // Register application routes
 app.use(routes);

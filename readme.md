@@ -31,6 +31,12 @@ A lightweight, high-performance HTTP server built on top of Deno with React SSR 
 - 👀 **Watch Mode**: Automatic rebuilding of modules during development
 - 📦 **Cache-Control Headers**: Built-in cache header management for static files
 
+### ✅ UI Components
+- 🎨 **React Components**: Reusable components (Card, Main, Title, TypingText, CtaButton, Footer) with TypeScript support
+- 🏠 **Landing Page**: Index page with animated typing text and email notification form
+- ✅ **Success Page**: Confirmation page after form submission with redirect handling
+- 📱 **Responsive Design**: Tailwind CSS for mobile and desktop layouts, preventing layout shifts
+
 ### ❌ TODO: E-commerce Features
 
 #### Security (Priority High)

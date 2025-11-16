@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+.blinking-cursor {
+     animation: blink 1s step-end infinite;
+ }
+ @keyframes blink {
+    from, to { opacity: 0; }
+    50% { opacity: 1; }
+ }
+
+ @keyframes slideInFromLeft {
+   from {
+         opacity: 0;
+         transform: translateX(-20px);
+   }
+   to {
+         opacity: 1;
+         transform: translateX(0);
+   }
+}
+.slide-in-from-left {
+   animation: slideInFromLeft 0.3s ease-out;
+}

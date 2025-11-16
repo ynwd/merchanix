@@ -1,5 +1,8 @@
-import Footer from "../../components/footer.tsx";
+import Main from "../../components/main.tsx";
+import Card from "../../components/card.tsx";
 import { Handler } from "../../core/mod.ts";
+import Title from "../../components/title.tsx";
+import CtaButton from "../../components/cta-button.tsx";
 
 export const successHandler: Handler = (_req, ctx) => {
     const successFlag = ctx.cookies?.notify_success;
@@ -9,14 +12,16 @@ export const successHandler: Handler = (_req, ctx) => {
 
     ctx.setCookie?.("notify_success", "", { path: "/", maxAge: 0 });
 
+    // use Main dan Card components to build the success page
     const element = (
         <>
-            <main>
-                <h1>Success!</h1>
-                <p>Thank you for registering. We will notify you as soon as the system is ready.</p>
-                <a href="/" className="btn-back">Back to Home</a>
-            </main>
-            <Footer />
+            <Main>
+                <Card>
+                    <Title>Success!</Title>
+                    <p>Thank you for registering. We will notify you as soon as the system is ready.</p>
+                    <CtaButton text="Back" link="/" variant="primary" />
+                </Card>
+            </Main>
         </>
     );
     const html = ctx.renderToString!(element, {
